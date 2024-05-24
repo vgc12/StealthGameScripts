@@ -1,0 +1,437 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8699579070142480171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa1770628119ce54980deb844516c178, type: 3}
+  m_Name: SelectorNode
+  m_EditorClassIdentifier: 
+  nodeName: Selector
+  nodePosition: {x: 50.883236, y: -2.6178436}
+  breakpoint: 0
+  decorators: []
+  services: []
+  children:
+  - {fileID: -2359004491170665224}
+  - {fileID: 6133813272582352881}
+  - {fileID: -7411410113163531268}
+--- !u!114 &-7886202104942641864
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f646c6a1eb19a4e960626068ae3aea, type: 3}
+  m_Name: CrossFadeTask
+  m_EditorClassIdentifier: 
+  nodeName: Play_Attack_01
+  nodePosition: {x: -439.52246, y: 492.5205}
+  breakpoint: 0
+  decorators: []
+  services: []
+  ignoreAbortSelf: 0
+  animation: Paper_Enemy_Attack_01
+  normalizedTransitionDuration: 0
+  layer: -1
+  normalizedTimeOffset: 0
+  normalizedTransitionTime: 0
+--- !u!114 &-7480748861391978417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d8eb552a888e4f4e95fe1dd36caf1c1, type: 3}
+  m_Name: SendMessageTask
+  m_EditorClassIdentifier: 
+  nodeName: Send Message
+  nodePosition: {x: -326.52246, y: 577.5205}
+  breakpoint: 0
+  decorators: []
+  services: []
+  ignoreAbortSelf: 0
+  receiver: {fileID: 1391673656560872981, guid: 1df91f63ad59b3f4cbce4fe96422b282, type: 2}
+  methodName: TakeDamage
+  valueKey: {fileID: 5893851784731294334, guid: 1df91f63ad59b3f4cbce4fe96422b282, type: 2}
+--- !u!114 &-7411410113163531268
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20ecbd642284b504ca1789fb521bbe87, type: 3}
+  m_Name: SequencerNode
+  m_EditorClassIdentifier: 
+  nodeName: Sequencer
+  nodePosition: {x: 696.9313, y: 305.1704}
+  breakpoint: 0
+  decorators: []
+  services: []
+  children:
+  - {fileID: -26768195317723923}
+  - {fileID: -5238665579718166545}
+--- !u!114 &-6733192203108087765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 188f33bd97f999943bfba3bc98458f77, type: 3}
+  m_Name: BlackboardConditionDecorator
+  m_EditorClassIdentifier: 
+  nodeName: Blackboard Condition
+  nodePosition: {x: 0, y: 0}
+  breakpoint: 0
+  child: {fileID: 0}
+  notifyObserver: 0
+  observerAbort: 0
+  key: {fileID: 0}
+  keyQuery:
+    rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+--- !u!114 &-6215413008205190997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f646c6a1eb19a4e960626068ae3aea, type: 3}
+  m_Name: CrossFadeTask
+  m_EditorClassIdentifier: 
+  nodeName: Play Run Animation
+  nodePosition: {x: -46.637085, y: 517.98}
+  breakpoint: 0
+  decorators: []
+  services: []
+  ignoreAbortSelf: 0
+  animation: Paper_Enemy_Run_Cycle
+  normalizedTransitionDuration: 0
+  layer: -1
+  normalizedTimeOffset: 0
+  normalizedTransitionTime: 0
+--- !u!114 &-5238665579718166545
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85263108a8bd9e0469feac3580755ae9, type: 3}
+  m_Name: WaitTask
+  m_EditorClassIdentifier: 
+  nodeName: Wait
+  nodePosition: {x: 848.9313, y: 541.1704}
+  breakpoint: 0
+  decorators: []
+  services: []
+  ignoreAbortSelf: 0
+  waitTime: {fileID: 573635336772962687}
+  randomDeviation: {fileID: 0}
+--- !u!114 &-4531562771640599660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 282e7a00d0e085f43a93a75fecba6979, type: 3}
+  m_Name: Group
+  m_EditorClassIdentifier: 
+  position: {x: -464.52246, y: 230.52052}
+  title: Attack01
+  nodes:
+  - {fileID: -2359004491170665224}
+  - {fileID: -7886202104942641864}
+  - {fileID: -7480748861391978417}
+  - {fileID: 3225930700926228081}
+--- !u!114 &-3460312660072036220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd402de4eb7669046830c326d89b03b4, type: 3}
+  m_Name: waitTime
+  m_EditorClassIdentifier: 
+  category: 
+  description: 
+  sync: 0
+  isLocal: 1
+  value: 0.5
+--- !u!114 &-2359004491170665224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20ecbd642284b504ca1789fb521bbe87, type: 3}
+  m_Name: SequencerNode
+  m_EditorClassIdentifier: 
+  nodeName: Sequencer
+  nodePosition: {x: -358.52246, y: 289.5205}
+  breakpoint: 0
+  decorators:
+  - {fileID: -6733192203108087765}
+  services: []
+  children:
+  - {fileID: -7886202104942641864}
+  - {fileID: -7480748861391978417}
+  - {fileID: 3225930700926228081}
+--- !u!114 &-26768195317723923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f646c6a1eb19a4e960626068ae3aea, type: 3}
+  m_Name: CrossFadeTask
+  m_EditorClassIdentifier: 
+  nodeName: transitionToIdle
+  nodePosition: {x: 615, y: 597.6115}
+  breakpoint: 0
+  decorators: []
+  services: []
+  ignoreAbortSelf: 0
+  animation: Paper_Enemy_Idle
+  normalizedTransitionDuration: 0
+  layer: -1
+  normalizedTimeOffset: 0
+  normalizedTransitionTime: 0
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f7a65a64ca895842abc0e2c774d054e, type: 3}
+  m_Name: Behaviour Tree
+  m_EditorClassIdentifier: 
+  blackboard: {fileID: 11400000, guid: 1df91f63ad59b3f4cbce4fe96422b282, type: 2}
+  updateMode: 0
+  tickRate: 30
+  rootNode: {fileID: 1815817403324480727}
+  nodes:
+  - {fileID: 1815817403324480727}
+  - {fileID: 6133813272582352881}
+  - {fileID: -6215413008205190997}
+  - {fileID: 8914152714243600177}
+  - {fileID: 3568930454634199246}
+  - {fileID: -8699579070142480171}
+  - {fileID: -7411410113163531268}
+  - {fileID: -26768195317723923}
+  - {fileID: -5238665579718166545}
+  - {fileID: -2359004491170665224}
+  - {fileID: -7886202104942641864}
+  - {fileID: 3225930700926228081}
+  - {fileID: -7480748861391978417}
+  - {fileID: -6733192203108087765}
+  groups:
+  - {fileID: -4531562771640599660}
+  - {fileID: 3814863178468199790}
+  - {fileID: 5591607347730390548}
+  notes: []
+  selectedNode: {fileID: 0}
+--- !u!114 &573635336772962687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd402de4eb7669046830c326d89b03b4, type: 3}
+  m_Name: waitTime
+  m_EditorClassIdentifier: 
+  category: 
+  description: 
+  sync: 0
+  isLocal: 1
+  value: 8.333
+--- !u!114 &1815817403324480727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df9bdc4129dd9f64c97141f9b4995906, type: 3}
+  m_Name: RootNode
+  m_EditorClassIdentifier: 
+  nodeName: 
+  nodePosition: {x: 71.99998, y: -172.40614}
+  breakpoint: 0
+  child: {fileID: -8699579070142480171}
+--- !u!114 &3225930700926228081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85263108a8bd9e0469feac3580755ae9, type: 3}
+  m_Name: WaitTask
+  m_EditorClassIdentifier: 
+  nodeName: Wait
+  nodePosition: {x: -217.52246, y: 489.5205}
+  breakpoint: 0
+  decorators: []
+  services: []
+  ignoreAbortSelf: 0
+  waitTime: {fileID: -3460312660072036220}
+  randomDeviation: {fileID: 0}
+--- !u!114 &3568930454634199246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 188f33bd97f999943bfba3bc98458f77, type: 3}
+  m_Name: BlackboardConditionDecorator
+  m_EditorClassIdentifier: 
+  nodeName: Blackboard Condition
+  nodePosition: {x: 0, y: 0}
+  breakpoint: 0
+  child: {fileID: 0}
+  notifyObserver: 0
+  observerAbort: 3
+  key: {fileID: -2778366062307202786, guid: 1df91f63ad59b3f4cbce4fe96422b282, type: 2}
+  keyQuery:
+    rid: 5191168626442633589
+  references:
+    version: 2
+    RefIds:
+    - rid: 5191168626442633589
+      type: {class: BoolQuery, ns: RenownedGames.AITree, asm: AITree}
+      data:
+        comparer: 1
+--- !u!114 &3814863178468199790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 282e7a00d0e085f43a93a75fecba6979, type: 3}
+  m_Name: Group
+  m_EditorClassIdentifier: 
+  position: {x: -71.637024, y: 234.98007}
+  title: Chase
+  nodes:
+  - {fileID: -6215413008205190997}
+  - {fileID: 8914152714243600177}
+  - {fileID: 6133813272582352881}
+--- !u!114 &5591607347730390548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 282e7a00d0e085f43a93a75fecba6979, type: 3}
+  m_Name: Group
+  m_EditorClassIdentifier: 
+  position: {x: 589.9313, y: 246.1704}
+  title: Idle
+  nodes:
+  - {fileID: -7411410113163531268}
+  - {fileID: -26768195317723923}
+  - {fileID: -5238665579718166545}
+--- !u!114 &6133813272582352881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20ecbd642284b504ca1789fb521bbe87, type: 3}
+  m_Name: SequencerNode
+  m_EditorClassIdentifier: 
+  nodeName: Sequencer
+  nodePosition: {x: 67.362915, y: 293.98}
+  breakpoint: 0
+  decorators:
+  - {fileID: 3568930454634199246}
+  services: []
+  children:
+  - {fileID: -6215413008205190997}
+  - {fileID: 8914152714243600177}
+--- !u!114 &8914152714243600177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbae3368fdc71954abc4bb1cdb37ba8b, type: 3}
+  m_Name: MoveToTask
+  m_EditorClassIdentifier: 
+  nodeName: Move To
+  nodePosition: {x: 201.36292, y: 518.98}
+  breakpoint: 0
+  decorators: []
+  services: []
+  ignoreAbortSelf: 0
+  key: {fileID: 1391673656560872981, guid: 1df91f63ad59b3f4cbce4fe96422b282, type: 2}
+  acceptableRadius: 1
+  includeAgentRadius: 1
+  includeGoalRadius: 1
+  allowPartialPath: 0
+  trackMovingGoal: 1
+  goLastPointOnLost: 0
