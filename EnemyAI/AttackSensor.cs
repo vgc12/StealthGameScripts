@@ -5,7 +5,7 @@ namespace EnemyAI
 {
     public class AttackSensor : MonoBehaviour
     {
-        public SphereCollider Collider;
+        public SphereCollider collider;
     
         public delegate void PlayerEntered(Transform player);
 

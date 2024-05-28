@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using PlayerScripts;
+using UnityEngine;
 
 namespace Damageables
 {
@@ -9,8 +11,19 @@ namespace Damageables
         private new void Start()
         {
             base.Start();
-            healthScriptableObject.Death += () => IsDead = true;
+            healthScriptableObject.Death += OnDeath;
             
+        }
+
+        private void OnDestroy()
+        {
+            healthScriptableObject.Death -= OnDeath;
+        }
+
+        private void OnDeath()
+        {
+            IsDead = true;
+            Player.Instance.ChangePlayerState(new PlayerStateInfo(PlayerState.Dead));
         }
     }
 }

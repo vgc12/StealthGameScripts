@@ -1,10 +1,12 @@
+using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace PlayerScripts
 {
     public class CameraEffects : MonoBehaviour
     {
-        private bool isWalking;
+        private bool _isWalking;
         [Range(0,.1f)]
         [SerializeField] 
         private float standingHeadBobAmplitude;
@@ -12,47 +14,57 @@ namespace PlayerScripts
         [SerializeField]
         private float crouchHeadBobAmplitude;
         
-        private float variableHeadBobAmplitude;
+        private float _variableHeadBobAmplitude;
         [Range(0,30)]
         [SerializeField] private float standingHeadBobFrequency;
         [Range(0,30)]
         [SerializeField] private float crouchHeadBobFrequency;
   
-        private Vector3 position;
-        private Vector3 startPos;
+        private Vector3 _position;
+        private Vector3 _startPos;
         [SerializeField] private Transform cameraHolder;
         [SerializeField] private Transform cameraTransform;
-        private bool isCrouched;
-        private float playerSpeed;
-        private float maxStandingSpeed;
-        private float maxCrouchedSpeed;
-        private bool isOnLadder;
-        private bool effectsEnabled;
+        private bool _isCrouched;
+        private float _playerSpeed;
+        private bool _isOnLadder;
+        private bool _effectsEnabled;
         public void Start()
         {
-            Player.Instance.PlayerMovement.PlayerInputActions.Player.Move.started += ctx => isWalking = true;
-            Player.Instance.PlayerMovement.PlayerInputActions.Player.Move.canceled += ctx => isWalking = false;
-            Player.Instance.PlayerMovement.CrouchEvent += crouchedState => isCrouched = crouchedState;
-            Player.Instance.PlayerMovement.SpeedChangedEvent += speed => playerSpeed = speed;
-            maxStandingSpeed = Player.Instance.PlayerMovement.Speed;
-            maxCrouchedSpeed = Player.Instance.PlayerMovement.CrouchMovementSpeed;
-            Player.Instance.PlayerMovement.LadderEvent += ladderState => isOnLadder = ladderState;
-            Player.PlayerStateChangedEvent += info =>  effectsEnabled = info.State == PlayerState.Undetected;
-            effectsEnabled = true;
-            startPos = cameraTransform.localPosition;
+            Player.Instance.PlayerMovement.PlayerInputActions.Player.Move.performed += OnMove;
+            Player.Instance.PlayerMovement.CrouchEvent += OnCrouch;
+            Player.Instance.PlayerMovement.SpeedChangedEvent += OnSpeedChanged;
+            Player.Instance.PlayerMovement.LadderEvent += OnLadderStateChanged;
+            Player.Instance.PlayerStateChangedEvent += OnPlayerStateChanged;
+            
+        
+            _effectsEnabled = true;
+            _startPos = cameraTransform.localPosition;
         }
+
+        private void OnPlayerStateChanged(PlayerStateInfo info) => _effectsEnabled = info.State == PlayerState.Undetected;
+
+        private void OnLadderStateChanged(bool ladderState) => _isOnLadder = ladderState;
+
+        private void OnCrouch (bool crouchedState) => _isCrouched = crouchedState;
+
+        private void OnMove(InputAction.CallbackContext ctx) => _isWalking = ctx.performed;
+
+        private void OnSpeedChanged(float speed) => _playerSpeed = speed;
+
+
+   
 
         private void OnDrawGizmos()
         {
-            Gizmos.DrawWireSphere(position, .3f);
+            Gizmos.DrawWireSphere(_position, .3f);
         }
 
         private void Update()
         {
             
-            if(!effectsEnabled) return;
+            if(!_effectsEnabled) return;
             ResetPosition();
-            if(isOnLadder) return;
+            if(_isOnLadder) return;
             
             ApplyHeadBob(CalculateHeadBob());
             
@@ -62,7 +74,7 @@ namespace PlayerScripts
 
         private void ApplyHeadBob(Vector3 motion)
         {
-            if (playerSpeed > 0)
+            if (_playerSpeed > 0)
             {
                 cameraTransform.localPosition += motion;
             }
@@ -70,25 +82,21 @@ namespace PlayerScripts
 
         private Vector3 CalculateHeadBob()
         {
-            var lerpTime = isCrouched ? playerSpeed / maxCrouchedSpeed : playerSpeed / maxStandingSpeed;
-            
-            variableHeadBobAmplitude = isCrouched? crouchHeadBobAmplitude : standingHeadBobAmplitude;
+            _variableHeadBobAmplitude = _isCrouched? crouchHeadBobAmplitude : standingHeadBobAmplitude;
 
-            //Debug.Log(variableHeadBobAmplitude + "variable amplitude");
-           //Debug.Log(headBobAmplitude + "head bob amplitude");
-            var t = (isCrouched? crouchHeadBobFrequency :  standingHeadBobFrequency)  * Time.time;
-            var x = Mathf.Cos(t/2) * variableHeadBobAmplitude*2;
-            var y = Mathf.Sin(t) * variableHeadBobAmplitude;
+            var t = (_isCrouched? crouchHeadBobFrequency :  standingHeadBobFrequency)  * Time.time;
+            var x = Mathf.Cos(t/2) * _variableHeadBobAmplitude*2;
+            var y = Mathf.Sin(t) * _variableHeadBobAmplitude;
             return new Vector3(x, y, 0);
         }
         
         private void ResetPosition()
         {
-            if (cameraTransform.localPosition == startPos)
+            if (cameraTransform.localPosition == _startPos)
             {
                 return;
             }
-            cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, startPos, Time.deltaTime);
+            cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, _startPos, Time.deltaTime);
         }
 
         private Vector3 FocusTarget()
@@ -97,6 +105,15 @@ namespace PlayerScripts
             Vector3 pos = new(playerPosition.x, playerPosition.y + cameraHolder.localPosition.y, playerPosition.z);
             pos += cameraHolder.forward * 15f;
             return pos;
+        }
+        
+        private void OnDestroy()
+        {
+            Player.Instance.PlayerMovement.PlayerInputActions.Player.Move.performed -= OnMove;
+            Player.Instance.PlayerMovement.CrouchEvent -= OnCrouch;
+            Player.Instance.PlayerMovement.SpeedChangedEvent -= OnSpeedChanged;
+            Player.Instance.PlayerMovement.LadderEvent -= OnLadderStateChanged;
+            Player.Instance.PlayerStateChangedEvent -= OnPlayerStateChanged;
         }
         
     }

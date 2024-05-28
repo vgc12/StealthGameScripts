@@ -3,71 +3,66 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerBlocking : MonoBehaviour
+namespace PlayerScripts.Input.Combat
 {
-    private PlayerInputActions playerInputActions;
-    private Vector2 keyboardDelta;
-    private Vector2 objectPosition;
-    [SerializeField]
-    private Transform weaponTransform;
-    [SerializeField]
-    private float rotationTime = 0.01f;
-    private Vector3 direction;
-    private bool isRunning;
-    private void Awake()
+    public class PlayerBlocking : MonoBehaviour
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        playerInputActions = new PlayerInputActions();
-        playerInputActions.Player.Enable();
-       // playerInputActions.Player.Move.performed += ctx => keyboardDelta = ctx.ReadValue<Vector2>();
-       playerInputActions.Player.Move.performed += MoveSword;
-       playerInputActions.Player.Move.canceled += ctx => keyboardDelta = Vector2.zero;
-    }
-
-    private void MoveSword(InputAction.CallbackContext ctx)
-    {
-        if (ctx.performed && enabled)
+        private PlayerInputActions _playerInputActions;
+        private Vector2 _keyboardDelta;
+        private Vector2 _objectPosition;
+        [SerializeField]
+        private Transform weaponTransform;
+        [SerializeField]
+        private float rotationTime = 0.01f;
+        private Vector3 _direction;
+        private bool _isRunning;
+        private void Awake()
         {
-            keyboardDelta = ctx.ReadValue<Vector2>();
-            if (isRunning) return;
-            StartCoroutine(MoveSwordToPosition());
-            isRunning = true;
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            _playerInputActions = new PlayerInputActions();
+            _playerInputActions.Player.Enable();
+            // playerInputActions.Player.Move.performed += ctx => keyboardDelta = ctx.ReadValue<Vector2>();
+            _playerInputActions.Player.Move.performed += MoveSword;
+            _playerInputActions.Player.Move.canceled += ctx => _keyboardDelta = Vector2.zero;
         }
-    }
 
-    private IEnumerator MoveSwordToPosition()
-    {
-        var startRotation = weaponTransform.localRotation;
-        var zRotation = (MathF.Atan2(keyboardDelta.y, keyboardDelta.x) * Mathf.Rad2Deg);
-      
-        var finalRotation = Quaternion.Euler(new Vector3( weaponTransform.localRotation.x, weaponTransform.localRotation.y, zRotation));
-        var t = 0f;
-        while (t <= 1f)
+        private void MoveSword(InputAction.CallbackContext ctx)
         {
-            t += Time.deltaTime / rotationTime;
-            weaponTransform.localRotation = Quaternion.Lerp(startRotation, finalRotation, t);
-            yield return null;
+            if (ctx.performed && enabled)
+            {
+                _keyboardDelta = ctx.ReadValue<Vector2>();
+                if (_isRunning || !enabled) return;
+                StartCoroutine(MoveSwordToPosition());
+                _isRunning = true;
+            }
         }
-        isRunning = false;
-    }
-    
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.blue;
-        Gizmos.DrawRay(transform.position, direction);
-    }
 
-   
-    
-    private void Update()
-    {
+        private IEnumerator MoveSwordToPosition()
+        {
+            var startRotation = weaponTransform.localRotation;
+            var zRotation = (MathF.Atan2(_keyboardDelta.y, _keyboardDelta.x) * Mathf.Rad2Deg);
       
-        
-        //var zRotation = (MathF.Atan2(keyboardDelta.y, keyboardDelta.x) * Mathf.Rad2Deg);
-        //weaponTransform.localRotation = Quaternion.Euler(new Vector3( weaponTransform.localRotation.x, weaponTransform.localRotation.y, zRotation));
-        //weaponTransform.localRotation = Quaternion.LookRotation()
-        //weaponTransform.rotation = Quaternion.Euler( );
+            var finalRotation = Quaternion.Euler(new Vector3( weaponTransform.localRotation.x, weaponTransform.localRotation.y, zRotation));
+            var t = 0f;
+            while (t <= 1f)
+            {
+                t += Time.deltaTime / rotationTime;
+                weaponTransform.localRotation = Quaternion.Lerp(startRotation, finalRotation, t);
+                yield return null;
+            }
+            _isRunning = false;
+        }
+    
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawRay(transform.position, _direction);
+        }
 
+        private void OnDisable()
+        {
+            weaponTransform.localRotation = Quaternion.Euler( new Vector3(weaponTransform.localRotation.x, weaponTransform.localRotation.y, 0));
+        }
     }
 }

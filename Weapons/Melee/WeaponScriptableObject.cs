@@ -1,3 +1,5 @@
+using System.Collections;
+using Damageables;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -18,63 +20,88 @@ namespace Weapons.Melee
         public Vector3 spawnPoint;
 
         public Vector3 spawnRotation;
+        
+        protected GameObject Model;
 
-        public Vector3 hitPosition;
 
-        protected GameObject model;
-
-        public UnityEvent swingEvent;
-
-        protected float attackAnimationLength;
+        protected float AttackAnimationLength;
 
         public string attackAnimationName;
-
-     
-
+        
         protected Animator WeaponAnimator;
 
-        protected MonoBehaviour activeMonoBehavior;
+        protected MonoBehaviour ActiveMonoBehavior;
 
         public Transform weaponParent;
         
         public WeaponType weaponType;
-        
-        public bool Equipped { get; set; }
+
+        public delegate void PickedUpEvent(WeaponScriptableObject weapon);
+
+        public static PickedUpEvent PickedUp;
+
+        public bool Equipped
+        {
+            get => _equipped;
+            set
+            {
+                _equipped = value;
+                Model.SetActive(value);
+            }
+        }
+
+        private bool _equipped;
         
 
         public virtual void Spawn(Transform parent, MonoBehaviour monoBehavior)
         {
 
-            this.activeMonoBehavior = monoBehavior;
+            ActiveMonoBehavior = monoBehavior;
 
             weaponParent = parent;
-            model = Instantiate(modelPrefab, weaponParent, false);
+            Model = Instantiate(modelPrefab, weaponParent, false);
             
             weaponParent.SetLocalPositionAndRotation(spawnPoint, Quaternion.Euler(spawnRotation));
 
 
-            foreach (Transform child in model.transform)
+            foreach (Transform child in Model.transform)
             {
                 child.gameObject.layer = LayerMask.NameToLayer("Weapon");
             }
 
-        }
-
-        public void Enable()
-        {
-            model.SetActive(true);
             Equipped = true;
         }
-
-        public void Disable()
+        
+        public virtual void Attack(RaycastHit hit)
         {
-            model.SetActive(false);
-            Equipped = false;
+            ActiveMonoBehavior.StartCoroutine(AttackCoroutine());
+
+            TryDamage(hit.collider);
+
+
         }
+
+        protected virtual void TryDamage(Collider col)
+        {
+            if (col && col.transform.root.TryGetComponent(out HealthHandler handler))
+            {
+                handler.healthScriptableObject.TakeDamage(weaponConfig.damage);
+            }
+        }
+        
+        private IEnumerator AttackCoroutine()
+        {
+            PlayAttackAnimation();
+           
+            yield return new WaitForSeconds(AttackAnimationLength / 2);
+           
+        }
+
+    
 
         public void Destroy()
         {
-            Destroy(model);
+            Destroy(Model);
         }
 
         public void SetWeaponLocation(Vector3 position)
@@ -84,10 +111,11 @@ namespace Weapons.Melee
 
         public void ResetWeaponLocation()
         {
+            Model.transform.SetLocalPositionAndRotation(new Vector3(0,0,0), Quaternion.Euler(0,0,0));
             weaponParent.transform.SetLocalPositionAndRotation(spawnPoint, Quaternion.Euler(spawnRotation));
         }
 
-        public virtual void PlayAttackAnimation()
+        protected virtual void PlayAttackAnimation()
         {
             WeaponAnimator.SetTrigger(attackAnimationName);
 

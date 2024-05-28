@@ -30,16 +30,17 @@ namespace PlayerScripts
             CameraPosition = null;
         }
         
-        public PlayerState State;
-        [CanBeNull] public Transform CameraRotationTarget;
-        [CanBeNull] public Transform CameraPosition;
+        public readonly PlayerState State;
+        [CanBeNull] public readonly Transform CameraRotationTarget;
+        [CanBeNull] public readonly Transform CameraPosition;
 
     }
     public enum PlayerState
     {
         Undetected,
-        Detected,
-        InHideable
+        InCombat,
+        Hiding,
+        Dead
     }
     public class Player : MonoBehaviour
     {
@@ -61,7 +62,7 @@ namespace PlayerScripts
         
         public delegate void PlayerStateChanged(PlayerStateInfo newStateInfo);
         
-        public static PlayerStateChanged PlayerStateChangedEvent;
+        public PlayerStateChanged PlayerStateChangedEvent;
         
 
       
@@ -94,11 +95,14 @@ namespace PlayerScripts
                 case PlayerState.Undetected:
                     HandleUndetectedMode();
                     break;
-                case PlayerState.Detected:
+                case PlayerState.InCombat:
                     HandleDetectedMode(newStateInfo);
                     break;
-                case PlayerState.InHideable:
+                case PlayerState.Hiding:
                     HandleHideableMode(newStateInfo);
+                    break;
+                case PlayerState.Dead:
+                    HandleDeadState(newStateInfo);
                     break;
                 default:
                     Debug.LogError("Error changing player state: (State) " + newStateInfo.State);
@@ -108,13 +112,26 @@ namespace PlayerScripts
             PlayerStateChangedEvent?.Invoke(newStateInfo);
         }
 
+        private void HandleDeadState(PlayerStateInfo newStateInfo)
+        {
+            PlayerMovement.enabled = false;
+            PlayerCombat.meleeHandler.enabled = false;
+            PlayerCombat.enabled = false;
+            CameraEffects.enabled = false;
+            PlayerBlocking.enabled = false;
+            PlayerLooking.EnterUndetectedFirstPersonMode();
+            PlayerLooking.enabled = false;
+
+        }
+
         private void HandleDetectedMode(PlayerStateInfo newStateInfo)
         {
+           
             PlayerMovement.enabled = false;
             PlayerCombat.enabled = false;
             CameraEffects.enabled = false;
             PlayerCombat.meleeHandler.enabled = true;
-            PlayerBlocking.enabled = false;
+            PlayerBlocking.enabled = true;
             PlayerLooking.enabled = true;
             PlayerLooking.EnterDetectedFirstPersonMode(newStateInfo.CameraRotationTarget);
         }

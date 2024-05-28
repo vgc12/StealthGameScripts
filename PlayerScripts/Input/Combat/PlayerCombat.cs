@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Weapons.Melee;
 
@@ -8,52 +9,60 @@ namespace PlayerScripts.Input.Combat
     {
         
         
-        private PlayerInputActions playerInputActions;
-
-
+        private PlayerInputActions _playerInputActions;
+        
         public MeleeHandler meleeHandler;
         
-        private PlayerBlocking playerBlocking;
+        private PlayerBlocking _playerBlocking;
 
+        private Collider[] _weaponDetectionColliders = new Collider[1];
         
 
 
         private void Awake()
         {
             meleeHandler = GetComponent<MeleeHandler>();
-            playerInputActions = new PlayerInputActions();
-            playerInputActions.Player.Fire.Enable();
-            playerInputActions.Player.Fire.performed += meleeHandler.AttackPressed;
-            Player.PlayerStateChangedEvent += OnStateChanged;
-            playerBlocking = GetComponent<PlayerBlocking>();
-            playerBlocking.enabled = false;
-            playerInputActions.Player.SwitchWeapon.Enable();
-            playerInputActions.Player.SwitchWeapon.performed += meleeHandler.ChangeWeapon;
+            _playerInputActions = new PlayerInputActions();
+            _playerInputActions.Player.Fire.Enable();
+            
+            _playerInputActions.Player.Fire.performed += meleeHandler.AttackPressed;
+            Player.Instance.PlayerStateChangedEvent += OnStateChanged;
+            _playerInputActions.Player.SwitchWeapon.performed += meleeHandler.ChangeWeapon;
+            
+            _playerBlocking = GetComponent<PlayerBlocking>();
+            _playerBlocking.enabled = false;
+            _playerInputActions.Player.SwitchWeapon.Enable();
+
+          
         }
 
+      
 
         private void OnStateChanged(PlayerStateInfo info)
         {
-            if (info.State == PlayerState.Detected)
+            if (info.State == PlayerState.InCombat)
             {
                 
                 meleeHandler.SwitchToWeapon(0);
-                playerBlocking.enabled = true;
+                _playerBlocking.enabled = true;
             }
             else
             {
                 
                 //meleeHandler.ResetWeaponLocation();
                 meleeHandler.enabled = true;
-                playerBlocking.enabled = false;
+                _playerBlocking.enabled = false;
             
             }
         }
 
         private void OnDestroy()
         {
-            playerInputActions.Player.Fire.performed -= meleeHandler.AttackPressed;
+            _playerInputActions.Player.Fire.performed -= meleeHandler.AttackPressed;
+            _playerInputActions.Player.SwitchWeapon.performed -= meleeHandler.ChangeWeapon;
             
+            Player.Instance.PlayerStateChangedEvent -= OnStateChanged;
+
         }
     }
 }

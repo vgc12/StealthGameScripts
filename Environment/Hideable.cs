@@ -65,7 +65,7 @@ namespace Environment
             {
            
                 //playerLooking.EnterHiddenInObjectMode(rotationTarget.transform, cameraPosition.transform);
-                Player.Instance.ChangePlayerState(new PlayerStateInfo(PlayerState.InHideable, rotationTarget.transform, cameraPosition.transform));
+                Player.Instance.ChangePlayerState(new PlayerStateInfo(PlayerState.Hiding, rotationTarget.transform, cameraPosition.transform));
 
             }
             else

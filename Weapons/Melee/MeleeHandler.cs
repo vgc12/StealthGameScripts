@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -14,102 +15,152 @@ namespace Weapons.Melee
 
         public MeleeWeaponScriptableObject currentMeleeWeapon;
         public RangedWeaponScriptableObject currentRangedWeapon;
-        private int currentWeaponIndex;
+        private int _currentWeaponIndex;
 
         [SerializeField] private List<WeaponScriptableObject> availableWeapons;
 
         public Transform weaponParent;
 
-        private bool attackPressed;
+        public Transform raycastOrigin;
+
+        private bool _attackPressed;
 
         public UnityEvent swingEvent;
 
-        private RaycastHit hit;
-        
-        private Type weaponType;
 
-        // Start is called before the first frame update
+        
+        private Type _weaponType;
+
+
         private void Start()
         {
-            currentWeaponIndex = 0;
+            _currentWeaponIndex = 0;
             
             currentMeleeWeapon = availableWeapons.First(w => w.weaponType == WeaponType.Melee) as MeleeWeaponScriptableObject;
-        
             
-        
             currentRangedWeapon = availableWeapons.First(w => w.weaponType == WeaponType.Ranged) as RangedWeaponScriptableObject;
+
+            raycastOrigin = transform.root;
+            
             if (currentRangedWeapon != null)
             {
                 currentRangedWeapon.Spawn(weaponParent, this);
-                currentRangedWeapon.Disable();
+                currentRangedWeapon.Equipped = false;
             }
             if(currentMeleeWeapon != null)
             {
                 currentMeleeWeapon.Spawn(weaponParent, this);
             }
 
+            WeaponScriptableObject.PickedUp += OnPickedUp;
+        }
+        private void OnPickedUp(WeaponScriptableObject weapon)
+        {
+            AddWeapon(weapon);
         }
 
+        private void OnDrawGizmos()
+        {
+            if(raycastOrigin == null) return;
+            Gizmos.color = Color.red;
+            Gizmos.DrawRay(raycastOrigin.position, raycastOrigin.forward * currentMeleeWeapon.weaponConfig.range);
+            Gizmos.DrawSphere(_hit.point, 0.9f);
+        }
+
+        private RaycastHit _hit;
         private void Update()
         {
             if (currentMeleeWeapon.Equipped)
             {
-                Physics.Raycast(weaponParent.position, weaponParent.forward, out hit,
-                    currentMeleeWeapon.weaponConfig.Range, currentMeleeWeapon.weaponConfig.HitMask);
+                Physics.Raycast(raycastOrigin.position, raycastOrigin.forward, out _hit,
+                    currentMeleeWeapon.weaponConfig.range, currentMeleeWeapon.weaponConfig.hitMask);
 
-
-
-
-                if (!attackPressed) return;
-                attackPressed = false;
-                currentMeleeWeapon.Attack(hit);
+                if (!_attackPressed)
+                {
+                    return;
+                }
+                
+                _attackPressed = false;
+                currentMeleeWeapon.Attack(_hit);
                
+            }
+            else if (currentRangedWeapon.Equipped)     {
+                Physics.Raycast(raycastOrigin.position, raycastOrigin.forward, out _hit,
+                    currentRangedWeapon.weaponConfig.range, ~LayerMask.GetMask("Triggers"));
+
+                
+                
+                if (!_attackPressed)
+                {
+                    return;
+                }
+
+                _attackPressed = false;
+                currentRangedWeapon.Attack(_hit);
+                StartCoroutine(SwitchFromRangedWeapon(.4f));
             }
         }
 
+        private void AddWeapon(WeaponScriptableObject weapon)
+        {
+            if (!availableWeapons.Contains(weapon))
+            {
+                availableWeapons.Add(weapon);
+            }
+
+            SwitchToWeapon(availableWeapons.IndexOf(weapon));
+            
+        }
 
         public void ChangeWeapon(InputAction.CallbackContext ctx)
         {
             if(!enabled) return;
             var direction = ctx.ReadValue<float>();
-            currentWeaponIndex += (int)direction;
-            if (currentWeaponIndex < 0)
+            _currentWeaponIndex += (int)direction;
+            if (_currentWeaponIndex < 0)
             {
-                currentWeaponIndex = availableWeapons.Count - 1;
+                _currentWeaponIndex = availableWeapons.Count - 1;
             }
-            else if (currentWeaponIndex >= availableWeapons.Count)
+            else if (_currentWeaponIndex >= availableWeapons.Count)
             {
-                currentWeaponIndex = 0;
+                _currentWeaponIndex = 0;
             }
             
             
-            SwitchToWeapon(currentWeaponIndex);
+            SwitchToWeapon(_currentWeaponIndex);
        
 
            
 
         }
 
+       
         public void SwitchToWeapon(int index)
         {
             var weapon = availableWeapons[index];
-           
+
+            _currentWeaponIndex = index;
         
         
             if (weapon.weaponType == WeaponType.Melee)
             {
-             
-                currentRangedWeapon.Disable();
-                currentMeleeWeapon = (MeleeWeaponScriptableObject)weapon;
-                currentMeleeWeapon.Enable();
+
+                if(!currentRangedWeapon.Thrown)             
+                    currentRangedWeapon.Equipped = false;
+               
+
+                currentMeleeWeapon = weapon as MeleeWeaponScriptableObject;
+                if (!currentMeleeWeapon) return;
+                currentMeleeWeapon.Equipped = true;
                 currentMeleeWeapon.ResetWeaponLocation();
             }
-            else
+            else if (!currentRangedWeapon.Thrown)
             {
-                
-                currentMeleeWeapon.Disable();
-                currentRangedWeapon = (RangedWeaponScriptableObject)weapon;
-                currentRangedWeapon.Enable();
+
+                currentMeleeWeapon.Equipped = false;
+                currentRangedWeapon = weapon as RangedWeaponScriptableObject;
+                if (!currentRangedWeapon) return;
+                currentRangedWeapon.Equipped = true;
                 currentRangedWeapon.ResetWeaponLocation();
             }
         }
@@ -119,14 +170,20 @@ namespace Weapons.Melee
         {
             if (ctx.performed)
             {
-                attackPressed = true;
+                _attackPressed = true;
             }
             else if (ctx.canceled)
             {
-                attackPressed = false;
+                _attackPressed = false;
             }
         }
 
+        private IEnumerator SwitchFromRangedWeapon(float seconds)
+        {
+            
+            yield return new WaitForSeconds(seconds);
+            SwitchToWeapon(availableWeapons.IndexOf(currentMeleeWeapon));
+        }
 
         
     }

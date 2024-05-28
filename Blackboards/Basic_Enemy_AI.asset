@@ -1,5 +1,34 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7801482211918916066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 188f33bd97f999943bfba3bc98458f77, type: 3}
+  m_Name: BlackboardConditionDecorator
+  m_EditorClassIdentifier: 
+  nodeName: Blackboard Condition
+  nodePosition: {x: 0, y: 0}
+  breakpoint: 0
+  arrangeable: 1
+  child: {fileID: 0}
+  notifyObserver: 1
+  observerAbort: 0
+  key: {fileID: -9000606598497736676, guid: 6a0cd765dd6e6fa42a23e63b3de33c81, type: 2}
+  keyQuery:
+    rid: 2157855951796830308
+  references:
+    version: 2
+    RefIds:
+    - rid: 2157855951796830308
+      type: {class: BoolQuery, ns: RenownedGames.AITree, asm: AITree}
+      data:
+        comparer: 0
 --- !u!114 &-7681436943973035405
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13,7 +42,7 @@ MonoBehaviour:
   m_Name: WaitTask
   m_EditorClassIdentifier: 
   nodeName: Wait
-  nodePosition: {x: -606.4791, y: 663}
+  nodePosition: {x: -539.0484, y: 669.3764}
   breakpoint: 0
   arrangeable: 1
   decorators:
@@ -104,7 +133,8 @@ MonoBehaviour:
   nodePosition: {x: -822.332, y: 679.99994}
   breakpoint: 0
   arrangeable: 1
-  decorators: []
+  decorators:
+  - {fileID: -7801482211918916066}
   services: []
   ignoreAbortSelf: 0
   receiver: {fileID: -3314998864012190672, guid: 6a0cd765dd6e6fa42a23e63b3de33c81, type: 2}
@@ -281,6 +311,7 @@ MonoBehaviour:
   - {fileID: 6892255124759005930}
   - {fileID: 8489123474241274214}
   - {fileID: 515863123905456614}
+  - {fileID: -7801482211918916066}
   groups:
   - {fileID: -2424744480088511764}
   notes: []
@@ -332,7 +363,7 @@ MonoBehaviour:
   m_Name: SetBoolTask
   m_EditorClassIdentifier: 
   nodeName: Set Bool
-  nodePosition: {x: 371.62573, y: 727.01196}
+  nodePosition: {x: 390.61288, y: 728.1882}
   breakpoint: 0
   arrangeable: 1
   decorators: []

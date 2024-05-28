@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using PlayerScripts;
 using RenownedGames.AITree;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
@@ -39,19 +40,19 @@ namespace EnemyAI
         [Header("Detection Meter")]
         public float detectionMeter;
 
-        private float distanceToPlayer;
+        private float _distanceToPlayer;
 
-        private Vector3 lastKnownPlayerPosition;
+        private Vector3 _lastKnownPlayerPosition;
 
-        private BehaviourRunner behaviorRunner;
+        private BehaviourRunner _behaviorRunner;
 
-        private Blackboard enemyBlackboard;
+        private Blackboard _enemyBlackboard;
 
-        private readonly Collider[] results = new Collider[1]; 
+        private readonly Collider[] _results = new Collider[1]; 
 
-        private bool allowTurnHead;
+        private bool _allowTurnHead;
 
-        private readonly CancellationTokenSource cancellationTokenSource = new();
+        private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     
         [SerializeField] private LayerMask detectionMask;
@@ -61,20 +62,20 @@ namespace EnemyAI
 
         private async void Start()
         {
-            behaviorRunner = GetComponent<BehaviourRunner>();
-            enemyBlackboard = behaviorRunner.GetBlackboard();
+            _behaviorRunner = GetComponent<BehaviourRunner>();
+            _enemyBlackboard = _behaviorRunner.GetBlackboard();
             constraint.weight = 0;
-            await FOV(cancellationTokenSource.Token);
+            await FOV(_cancellationTokenSource.Token);
         }
 
         private void Update()
         {
-            enemyBlackboard.TryGetKey("Player", out TransformKey target);
+            _enemyBlackboard.TryGetKey("Player", out TransformKey target);
 
             if (canSeePlayer)
             {
 
-                detectionMeter += Mathf.Pow(0.6f, Time.deltaTime * distanceToPlayer * 200f);
+                detectionMeter += Mathf.Pow(0.6f, Time.deltaTime * _distanceToPlayer * 200f);
               
             }
             else
@@ -91,12 +92,13 @@ namespace EnemyAI
                 
                 case >= .99f:
                     playerDetected = true;
-                    PlayerDetectedEvent?.Invoke(player.transform);
-                    AITreeHelper.SetBlackboardValue(enemyBlackboard, "PlayerDetected", true);
+                    if(Player.Instance.playerState != PlayerState.Dead)
+                        PlayerDetectedEvent?.Invoke(player.transform);
+                    AITreeHelper.SetBlackboardValue(_enemyBlackboard, "PlayerDetected", true);
                     break;
                 case >= .6f:
-                    SuspicionRaisedEvent?.Invoke(lastKnownPlayerPosition);
-                    allowTurnHead = true;
+                    SuspicionRaisedEvent?.Invoke(_lastKnownPlayerPosition);
+                    _allowTurnHead = true;
                     break;
            
                     
@@ -107,14 +109,14 @@ namespace EnemyAI
 
             detectionMeter = Mathf.Clamp(detectionMeter, 0, 1);
            
-            AITreeHelper.SetBlackboardValue(enemyBlackboard, "DetectionMeter", detectionMeter);
+            AITreeHelper.SetBlackboardValue(_enemyBlackboard, "DetectionMeter", detectionMeter);
         }
 
         private void TurnEnemyHead()
         {
             bool playerInHeadTurnRange = Vector3.Angle(transform.forward, (player.transform.position - enemyHead.position).normalized) < 90;
 
-            if (allowTurnHead && playerInHeadTurnRange)
+            if (_allowTurnHead && playerInHeadTurnRange)
                 constraint.weight += Time.deltaTime * .3f;
             else
                 constraint.weight -= Time.deltaTime * .3f;
@@ -135,7 +137,7 @@ namespace EnemyAI
 
         private void FieldOfViewCheck()
         {
-            int size = Physics.OverlapSphereNonAlloc(enemyHead.position, detectionRange, results, detectionMask);
+            int size = Physics.OverlapSphereNonAlloc(enemyHead.position, detectionRange, _results, detectionMask);
 
             if (size <= 0)
             {
@@ -148,16 +150,16 @@ namespace EnemyAI
 
             if (Vector3.Angle(enemyHead.forward, directionToTarget) < fovAngle / 2)
             {
-                distanceToPlayer = Vector3.Distance(enemyHead.position, player.transform.position);
+                _distanceToPlayer = Vector3.Distance(enemyHead.position, player.transform.position);
          
 
-                if (Physics.Raycast(enemyHead.position, directionToTarget, out var hit, distanceToPlayer, obstructionMask))
+                if (Physics.Raycast(enemyHead.position, directionToTarget, out var hit, _distanceToPlayer, obstructionMask))
                 {
                     canSeePlayer = false;
                 }
                 else
                 {
-                    lastKnownPlayerPosition = hit.point;
+                    _lastKnownPlayerPosition = hit.point;
                     canSeePlayer = true;
                 }
             }

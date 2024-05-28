@@ -11,7 +11,7 @@ namespace PlayerScripts.Input.Movement
         [Header("Shared")]
         public bool MovementEnabled { get; set; }
         public PlayerInputActions PlayerInputActions { get; private set; }
-        private Transform player;
+        private Transform _player;
   
 
         [Header("Movement")]
@@ -40,18 +40,18 @@ namespace PlayerScripts.Input.Movement
         [SerializeField]
         private Transform orientation;
     
-        private Vector3 previousPosition;
-        private Vector3 moveDirection;
-        private Vector2 movementInput;
-        private Vector3 velocityY;
+        private Vector3 _previousPosition;
+        private Vector3 _moveDirection;
+        private Vector2 _movementInput;
+        private Vector3 _velocityY;
         [SerializeField] private float gravity;
-        private float realSpeed;
+        private float _realSpeed;
         [SerializeField]
         private float acceleration = 1f;
         [SerializeField]
         private float deceleration = 1f;
 
-        private Vector3 lastMoveDirection;
+        private Vector3 _lastMoveDirection;
 
 
 
@@ -62,7 +62,7 @@ namespace PlayerScripts.Input.Movement
         private float jumpVelocity = 5f;
         [SerializeField]
         private float maxJumpHeight = 5f;
-        private bool jumpPressed, isJumping;
+        private bool _jumpPressed, _isJumping;
 
         [Header("Ladder Climbing")]
         [Range(0f, 10f)]
@@ -76,13 +76,17 @@ namespace PlayerScripts.Input.Movement
         [SerializeField] private float crouchHeight = 0.5f;
         [SerializeField] private float normalHeight = 1f;
         [SerializeField] private float crouchSpeed = .5f;
-        private float playerHeight = 1f;
-        [SerializeField]
-        private bool isCrouched = false;
+        private float _playerHeight = 1f;
+        private bool objectAbove = false;
+
+        private bool IsCrouched{ get; set; }
+
+        private bool _isCrouched;
+
         public delegate void CrouchDelegate(bool isCrouched);
         public CrouchDelegate CrouchEvent;
-        private readonly Collider[] crouchCollider = new Collider[1];
-        private bool crouchTransitioning;
+        private readonly Collider[] _crouchCollider = new Collider[1];
+        private bool _crouchTransitioning;
 
     
         [Header("Leaning")]
@@ -92,14 +96,14 @@ namespace PlayerScripts.Input.Movement
         [SerializeField] private float leanSpeed;
         [SerializeField]
         private float maxLeanAngle;
-        private float targetLean;
-        private float currentLean;
-        private readonly Collider[] leanCollider = new Collider[1];
-        private float leanVelocity;
+        private float _targetLean;
+        private float _currentLean;
+        private readonly Collider[] _leanCollider = new Collider[1];
+        private float _leanVelocity;
         [SerializeField]
         private LayerMask leanLayerMask;
 
-        private bool leanLeftPressed, leanRightPressed;
+        private bool _leanLeftPressed, _leanRightPressed;
   
 
         #endregion
@@ -107,8 +111,8 @@ namespace PlayerScripts.Input.Movement
         #region UnityDefaults
         private void Awake()
         {
-            player = transform;
-            playerHeight = player.localScale.y;
+            _player = transform;
+            _playerHeight = _player.localScale.y;
         
             PlayerInputActions = new PlayerInputActions();
             PlayerInputActions.Player.Enable();
@@ -119,8 +123,8 @@ namespace PlayerScripts.Input.Movement
         
             PlayerInputActions.Player.Crouch.performed += ToggleCrouch;
         
-            PlayerInputActions.Player.Move.performed += ctx => movementInput = ctx.ReadValue<Vector2>();
-            PlayerInputActions.Player.Move.canceled += _ => movementInput = Vector2.zero;
+            PlayerInputActions.Player.Move.performed += ctx => _movementInput = ctx.ReadValue<Vector2>();
+            PlayerInputActions.Player.Move.canceled += _ => _movementInput = Vector2.zero;
         
             PlayerInputActions.Player.LeanLeft.performed += LeanLeft;
             PlayerInputActions.Player.LeanLeft.canceled += LeanLeft;
@@ -184,18 +188,18 @@ namespace PlayerScripts.Input.Movement
         private void HandleGravity()
         {
         
-            if (controller.isGrounded && !crouchTransitioning)
+            if (controller.isGrounded && !_crouchTransitioning)
             {
-                velocityY.y = -2f;
+                _velocityY.y = -2f;
            
             
             }
             else
             {
-                float prevYVelocity = velocityY.y;
-                velocityY.y += (gravity * Time.deltaTime);
-                float nextYVelocity = (velocityY.y + prevYVelocity) * .5f;
-                velocityY.y = nextYVelocity;
+                float prevYVelocity = _velocityY.y;
+                _velocityY.y += (gravity * Time.deltaTime);
+                float nextYVelocity = (_velocityY.y + prevYVelocity) * .5f;
+                _velocityY.y = nextYVelocity;
             
 
             }
@@ -208,12 +212,12 @@ namespace PlayerScripts.Input.Movement
         {
             if (obj.performed || obj.started)
             {
-                leanLeftPressed = false;
-                leanRightPressed = true;
+                _leanLeftPressed = false;
+                _leanRightPressed = true;
             }
             else
             {
-                leanRightPressed = false;
+                _leanRightPressed = false;
             }
         }
 
@@ -221,12 +225,12 @@ namespace PlayerScripts.Input.Movement
         {
             if (obj.performed || obj.started)
             {
-                leanRightPressed = false;
-                leanLeftPressed = true;
+                _leanRightPressed = false;
+                _leanLeftPressed = true;
             }
             else
             {
-                leanLeftPressed = false;
+                _leanLeftPressed = false;
             }
         }
 
@@ -235,36 +239,36 @@ namespace PlayerScripts.Input.Movement
         private void HandleLean()
         {
        
-            if (leanLeftPressed)
+            if (_leanLeftPressed)
             {
-                targetLean = maxLeanAngle;
+                _targetLean = maxLeanAngle;
             }
-            else if (leanRightPressed)
+            else if (_leanRightPressed)
             {
-                targetLean = -maxLeanAngle;
+                _targetLean = -maxLeanAngle;
             }
             else
             {
-                targetLean = 0;
+                _targetLean = 0;
             }
-            leanPivotCheck.localRotation = Quaternion.Euler(new Vector3(0,0,targetLean));
+            leanPivotCheck.localRotation = Quaternion.Euler(new Vector3(0,0,_targetLean));
 
-            bool objectInWay = Physics.OverlapSphereNonAlloc(leanOverlapSphereLocation.position, .5f, leanCollider,
+            bool objectInWay = Physics.OverlapSphereNonAlloc(leanOverlapSphereLocation.position, .5f, _leanCollider,
                 ~leanLayerMask)> 0;
             
             
            
             switch (objectInWay)
             {
-                case true when targetLean != 0:
-                    targetLean = 0;
+                case true when _targetLean != 0:
+                    _targetLean = 0;
                     break;
                 case true:
                     return;
             }
-            currentLean = Mathf.SmoothDamp(currentLean, targetLean, ref leanVelocity, leanSpeed);
+            _currentLean = Mathf.SmoothDamp(_currentLean, _targetLean, ref _leanVelocity, leanSpeed);
            
-            var targetRotation = Quaternion.Euler(new Vector3(0,0,currentLean));
+            var targetRotation = Quaternion.Euler(new Vector3(0,0,_currentLean));
 
             leanPivot.localRotation = targetRotation;
 
@@ -276,58 +280,58 @@ namespace PlayerScripts.Input.Movement
 
         private void ToggleCrouch(InputAction.CallbackContext context)
         {
-            var playerPosition = player.position;
-            bool objectAbove = Physics.OverlapCapsuleNonAlloc(
+            var playerPosition = _player.position;
+            objectAbove = Physics.OverlapCapsuleNonAlloc(
                 new Vector3(playerPosition.x, playerPosition.y + crouchHeight, playerPosition.z),
                 new Vector3(playerPosition.x, playerPosition.y + normalHeight, playerPosition.z),
-                0.5f, crouchCollider, ~leanLayerMask) > 0;
+                0.5f, _crouchCollider, ~leanLayerMask) > 0;
         
             if (context.performed)
             {
 
-                if (isCrouched && !objectAbove)
+                if (IsCrouched && !objectAbove)
                 {
-                    isCrouched = false;
+                    IsCrouched = false;
                 }
                 else
                 {
-                    isCrouched = true;
+                    IsCrouched = true;
                 }
-                CrouchEvent.Invoke(isCrouched);
+                CrouchEvent.Invoke(IsCrouched);
             }
         }
 
         private void Crouch()
         {
        
-            if (isCrouched)
+            if (IsCrouched)
             {
-                if (playerHeight > crouchHeight)
+                if (_playerHeight > crouchHeight)
                 {
-                    crouchTransitioning = true;
-                    playerHeight -= crouchSpeed * Time.deltaTime;
+                    _crouchTransitioning = true;
+                    _playerHeight -= crouchSpeed * Time.deltaTime;
                 }
                 else
                 {
-                    crouchTransitioning = false;
-                    playerHeight = crouchHeight;
+                    _crouchTransitioning = false;
+                    _playerHeight = crouchHeight;
                 }
             
             }
             else
             {
-                if (playerHeight < normalHeight)
+                if (_playerHeight < normalHeight)
                 {
-                    playerHeight += crouchSpeed * Time.deltaTime;
-                    crouchTransitioning = true;
+                    _playerHeight += crouchSpeed * Time.deltaTime;
+                    _crouchTransitioning = true;
                 }
                 else
                 {
-                    crouchTransitioning = false;
-                    playerHeight = normalHeight;
+                    _crouchTransitioning = false;
+                    _playerHeight = normalHeight;
                 }
             }
-            transform.localScale = new Vector3(1, playerHeight, 1);
+            transform.localScale = new Vector3(1, _playerHeight, 1);
         }
     
 
@@ -341,43 +345,43 @@ namespace PlayerScripts.Input.Movement
         {
        
         
-            if(movementInput.x != 0 || movementInput.y != 0)
+            if(_movementInput.x != 0 || _movementInput.y != 0)
             {
              
                 
-                float prevSpeed = realSpeed;
-                realSpeed = Mathf.Clamp( realSpeed + acceleration * Time.deltaTime *.5f, 0,isCrouched ? crouchMovementSpeed : speed);
-                float nextSpeed = (realSpeed + prevSpeed) * .5f;
+                float prevSpeed = _realSpeed;
+                _realSpeed = Mathf.Clamp( _realSpeed + acceleration * Time.deltaTime *.5f, 0,IsCrouched ? crouchMovementSpeed : speed);
+                float nextSpeed = (_realSpeed + prevSpeed) * .5f;
                 SpeedChangedEvent?.Invoke(nextSpeed);
-                controller.Move( moveDirection.normalized * (nextSpeed * Time.deltaTime));
+                controller.Move( _moveDirection.normalized * (nextSpeed * Time.deltaTime));
                 
            
-                moveDirection = (orientation.forward * movementInput.y) + (orientation.right * movementInput.x);
+                _moveDirection = (orientation.forward * _movementInput.y) + (orientation.right * _movementInput.x);
             
           
             }
             else
             {
-                var prevSpeed = realSpeed;
-                if(!isJumping)
-                    realSpeed = Mathf.Clamp( realSpeed - deceleration * Time.deltaTime, 0, isCrouched ? crouchMovementSpeed : speed);
-                var nextSpeed = (realSpeed + prevSpeed) * .5f;
+                var prevSpeed = _realSpeed;
+                if(!_isJumping)
+                    _realSpeed = Mathf.Clamp( _realSpeed - deceleration * Time.deltaTime, 0, IsCrouched ? crouchMovementSpeed : speed);
+                var nextSpeed = (_realSpeed + prevSpeed) * .5f;
                 SpeedChangedEvent?.Invoke(nextSpeed);
             
-                controller.Move( lastMoveDirection.normalized * (nextSpeed * Time.deltaTime));
+                controller.Move( _lastMoveDirection.normalized * (nextSpeed * Time.deltaTime));
             }
         
         
-            lastMoveDirection = moveDirection;
+            _lastMoveDirection = _moveDirection;
         
-            controller.Move(velocityY * Time.deltaTime);
+            controller.Move(_velocityY * Time.deltaTime);
         }
 
 
         #endregion
     
         #region Ladder
-        private void MovePlayerOnLadder() => controller.Move(ladderSpeed * movementInput.y * Time.deltaTime * Vector3.up);
+        private void MovePlayerOnLadder() => controller.Move(ladderSpeed * _movementInput.y * Time.deltaTime * Vector3.up);
 
         public void EnterLadder()
         {
@@ -400,27 +404,27 @@ namespace PlayerScripts.Input.Movement
         private void Jump(InputAction.CallbackContext ctx)
         {
 
-            jumpPressed = ctx.ReadValueAsButton();
+            _jumpPressed = ctx.ReadValueAsButton();
         }
      
 
         private void HandleJump()
         {
         
-            if ((!isJumping && controller.isGrounded && jumpPressed) || 
-                (isOnLadder && jumpPressed))
+            if ((!_isJumping && controller.isGrounded && _jumpPressed) || 
+                (isOnLadder && _jumpPressed))
             {
 
                 if (isOnLadder)
                 {
                     ExitLadder();
                 }
-                velocityY.y = jumpVelocity;
-                isJumping = true;
+                _velocityY.y = jumpVelocity;
+                _isJumping = true;
             }
-            else if (!jumpPressed && isJumping && controller.isGrounded)
+            else if (!_jumpPressed && _isJumping && controller.isGrounded)
             {
-                isJumping = false;
+                _isJumping = false;
             }
         }
 

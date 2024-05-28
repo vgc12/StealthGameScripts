@@ -1,14 +1,14 @@
 using System.Collections;
+using PlayerScripts;
 using RenownedGames.AITree;
 using UnityEngine;
 using UnityEngine.Pool;
-using PlayerScripts;
 
 namespace EnemyAI
 {
     public class EnemyWeaponHandler : MonoBehaviour
     {
-        public GameObject ThrowingKnifePrefab;
+        public GameObject throwingKnifePrefab;
 
         [SerializeField] private float spawnRate = .3f;
 
@@ -17,19 +17,19 @@ namespace EnemyAI
 
         [SerializeField] private Transform throwingPosition;
         
-        private Blackboard blackboard;
-        private bool isAttacking;
+        private Blackboard _blackboard;
+        private bool _isAttacking;
         private void Awake()
         {
             ThrowingKnifePool = new ObjectPool<GameObject>(CreateThrowingKnife, GetThrowingKnife, ReleaseThrowingKnife, Destroy,true, 10, 50);
-            isAttacking = false;
-            blackboard = GetComponent<BehaviourRunner>().GetBlackboard();
+            _isAttacking = false;
+            _blackboard = GetComponent<BehaviourRunner>().GetBlackboard();
         }
 
 
         private GameObject CreateThrowingKnife()
         {
-            GameObject throwingKnife = Instantiate(ThrowingKnifePrefab);
+            GameObject throwingKnife = Instantiate(throwingKnifePrefab);
        
             return throwingKnife;
         }
@@ -45,10 +45,10 @@ namespace EnemyAI
 
         public void AttackFromRange(int amountToThrow)
         {
-            if (isAttacking)
+            if (_isAttacking)
                 return;
             StartCoroutine(ThrowKnives(amountToThrow));
-            isAttacking = true;
+            _isAttacking = true;
         }
     
         private IEnumerator ThrowKnives(int amountToThrow)
@@ -58,16 +58,23 @@ namespace EnemyAI
             yield return new WaitForSeconds(1);
             for (var i = amountToThrow - 1; i >= 0; i--)
             {
+                
+                if (Player.Instance.playerState == PlayerState.Dead)
+                {
+                    break;
+                }
                 var throwingKnifeObject = ThrowingKnifePool.Get();
                 ThrowingKnife throwingKnife = throwingKnifeObject.GetComponent<ThrowingKnife>();
-                throwingKnife.target = PlayerScripts.Player.Instance.HealthHandler.targets[Random.Range(0, Player.Instance.HealthHandler.targets.Length)];
+                
+                throwingKnife.target = Player.Instance.HealthHandler.targets[Random.Range(0, Player.Instance.HealthHandler.targets.Length)];
                 throwingKnife.transform.position = throwingPosition.position;
                 throwingKnife.readyToThrow = true;
-                AITreeHelper.SetBlackboardValue(blackboard, "KnivesLeft", i);
                 yield return new WaitForSeconds(spawnRate);
+                AITreeHelper.SetBlackboardValue(_blackboard, "KnivesLeft", i);
+                throwingKnife.lastKnife = i == 0;
             }
 
-          
+            
         
         }
     

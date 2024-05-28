@@ -16,31 +16,20 @@ namespace Weapons.Melee
         {
 
             base.Spawn(parent, monoBehavior);
-            WeaponAnimator = model.GetComponent<Animator>();
-            attackAnimationLength = WeaponAnimator.runtimeAnimatorController.animationClips
+            WeaponAnimator = Model.GetComponent<Animator>();
+            AttackAnimationLength = WeaponAnimator.runtimeAnimatorController.animationClips
                 .First(anim => anim.name == attackAnimationName).length;
       
         }
 
-        public virtual void Attack(RaycastHit hit)
-        {
-            activeMonoBehavior.StartCoroutine(AttackCoroutine());
-
-            if (hit.collider != null && hit.collider.transform.root.TryGetComponent(out HealthHandler handler))
-            {
-                handler.healthScriptableObject.TakeDamage(weaponConfig.Damage);
-            }
-
-            swingEvent?.Invoke();
-
-        }
+       
 
 
         private IEnumerator AttackCoroutine()
         {
             PlayAttackAnimation();
            
-            yield return new WaitForSeconds(attackAnimationLength / 2);
+            yield return new WaitForSeconds(AttackAnimationLength / 2);
            
         }
 

@@ -1,5 +1,22 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9000606598497736676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b97a1cab3e25e246a1321c1c6515ce3, type: 3}
+  m_Name: PlayerIsDead
+  m_EditorClassIdentifier: 
+  category: 
+  description: 
+  sync: 0
+  isLocal: 0
+  value: 0
 --- !u!114 &-5783740209282516395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126,6 +143,7 @@ MonoBehaviour:
   - {fileID: -5141655328582330412}
   - {fileID: 6691833385601296619}
   - {fileID: 2051410000430647393}
+  - {fileID: -9000606598497736676}
   parent: {fileID: 0}
 --- !u!114 &2051410000430647393
 MonoBehaviour:

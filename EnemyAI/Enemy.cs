@@ -26,44 +26,45 @@ namespace EnemyAI
 
         [SerializeField] private AttackConfigScriptableObject attackConfig;
         [SerializeField] private PlayerSensor playerSensor;
-        //[SerializeField] private AttackSensor attackSensor;
-        [SerializeField] private float lastAttackTime;
         [SerializeField] private bool inAttackRange;
         [SerializeField] private Transform[] targets;
-        private int numberOfTargets;
-        private int currentTargetIndex;
-        private Blackboard enemyBlackboard;
-        private NavMeshAgent agent;
+        private int _numberOfTargets;
+        private int _currentTargetIndex;
+        private Blackboard _enemyBlackboard;
         public Transform inCombatFocusPoint;
-        private HealthHandler healthHandler;
+        private HealthHandler _healthHandler;
         
 
         
         private void Start()
         {
             playerSensor = GetComponent<PlayerSensor>();
-            //attackSensor = GetComponent<AttackSensor>();
-            healthHandler = GetComponent<HealthHandler>();
+            _healthHandler = GetComponent<HealthHandler>();
             behaviorRunner = GetComponent<BehaviourRunner>();
-            agent = GetComponent<NavMeshAgent>();
-            enemyBlackboard = behaviorRunner.GetBlackboard();
-            lastAttackTime = Time.time;
+            _enemyBlackboard = behaviorRunner.GetBlackboard();
             playerSensor.PlayerDetectedEvent += OnPlayerDetected;
             playerSensor.SuspicionRaisedEvent += OnSuspicionRaised;
             playerSensor.PlayerLostEvent += OnPlayerLost;
-            healthHandler.healthScriptableObject.Death += OnDeath;
+            _healthHandler.healthScriptableObject.Death += OnDeath;
             
-            //attackSensor.PlayerEnterEvent += AttackSensorOnPlayerEnter;
-            //attackSensor.PlayerExitEvent += AttackSensorOnPlayerExit;
             foreach (var target in targets)
             {
                 target.SetParent(null, true);
             }
-            numberOfTargets = targets.Length;
-            currentTargetIndex = 0;
-            AITreeHelper.SetBlackboardValue(enemyBlackboard, "Target", targets[currentTargetIndex].position);
+            
+            _numberOfTargets = targets.Length;
+            _currentTargetIndex = 0;
+            AITreeHelper.SetBlackboardValue(_enemyBlackboard, "Target", targets[_currentTargetIndex].position);
+            
+            Player.Instance.PlayerStateChangedEvent += OnPlayerStateChanged;
         }
-        
+
+        private void OnPlayerStateChanged(PlayerStateInfo ps)
+        {
+            AITreeHelper.SetBlackboardValue(_enemyBlackboard, "PlayerIsDead", ps.State == PlayerState.Dead);
+            Debug.Log(ps.State);
+        }
+
         private void Update()
         {
             
@@ -74,24 +75,31 @@ namespace EnemyAI
             playerSensor.PlayerDetectedEvent -= OnPlayerDetected;
             playerSensor.SuspicionRaisedEvent -= OnSuspicionRaised;
             playerSensor.PlayerLostEvent -= OnPlayerLost;
-            healthHandler.healthScriptableObject.Death -= OnDeath;
+            _healthHandler.healthScriptableObject.Death -= OnDeath;
     
         }
 
         private void OnSuspicionRaised(Vector3 lastKnownPosition)
         {
-            AITreeHelper.SetBlackboardValue(enemyBlackboard, "Target", lastKnownPosition);
-            Player.Instance.ChangePlayerState(new PlayerStateInfo(PlayerState.Detected));
+            AITreeHelper.SetBlackboardValue(_enemyBlackboard, "Target", lastKnownPosition);
+       
         }
 
         private void OnPlayerLost(Vector3 lastKnownPosition)
         {
-            Player.Instance.ChangePlayerState(new PlayerStateInfo(PlayerState.Undetected));
+            if (Player.Instance.playerState != PlayerState.Undetected)
+            {
+                Player.Instance.ChangePlayerState(new PlayerStateInfo(PlayerState.Undetected));
+            }
         }
 
         public void OnPlayerDetected(Transform player)
         {
-            Player.Instance.ChangePlayerState(new PlayerStateInfo(PlayerState.Detected, inCombatFocusPoint.transform));
+            
+            Player.Instance.ChangePlayerState(new PlayerStateInfo(PlayerState.InCombat,
+                inCombatFocusPoint.transform));
+            
+
             Vector3 lookPos = player.position - transform.position;
             lookPos.y = 0;
             Quaternion rotation = Quaternion.LookRotation(lookPos);
@@ -105,9 +113,9 @@ namespace EnemyAI
 
         public void ChooseTarget()
         {
-            currentTargetIndex++;
-            currentTargetIndex %= numberOfTargets;
-            AITreeHelper.SetBlackboardValue(enemyBlackboard, "Target", targets[currentTargetIndex].position);
+            _currentTargetIndex++;
+            _currentTargetIndex %= _numberOfTargets;
+            AITreeHelper.SetBlackboardValue(_enemyBlackboard, "Target", targets[_currentTargetIndex].position);
         }
         
     
@@ -116,8 +124,9 @@ namespace EnemyAI
 
         private void OnDeath()
         {
-            PlayerStateInfo playerStateInfo = new PlayerStateInfo(PlayerState.Undetected);
-            this.enabled = false;
+            var playerStateInfo = new PlayerStateInfo(PlayerState.Undetected);
+            Player.Instance.ChangePlayerState(playerStateInfo);
+            enabled = false;
             behaviorRunner.enabled = false;
             gameObject.SetActive(false);
             playerSensor.enabled = false;

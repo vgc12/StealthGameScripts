@@ -4,12 +4,10 @@ namespace Weapons.Melee
 {
     public class WeaponConfigScriptableObject : ScriptableObject
     {
-        public LayerMask HitMask;
+        public LayerMask hitMask;
 
-        public float AttackDelay = 0.5f;
+        public float range = 1f;
 
-        public float Range = 1f;
-
-        public int Damage = 1;
+        public int damage = 1;
     }
 }

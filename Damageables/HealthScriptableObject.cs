@@ -7,7 +7,7 @@ namespace Damageables
     {
         public DamageableType damageableType;
 
-        private float health;
+        private float _health;
 
         public float maxHealth;
         
@@ -20,22 +20,22 @@ namespace Damageables
 
         public void Spawn()
         {
-            health = maxHealth;
+            _health = maxHealth;
             
         }
 
         public void TakeDamage(float damage)
         {
-            health -= damage;
+            _health -= damage;
 
-            if (health <= 0)
+            if (_health <= 0)
             {
-                health = 0;
+                _health = 0;
                 
                 Death?.Invoke();
             }
 
-            HealthChanged?.Invoke(health);
+            HealthChanged?.Invoke(_health);
         }
 
     

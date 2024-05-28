@@ -1,3 +1,4 @@
+using System.Collections;
 using Damageables;
 using UnityEngine;
 
@@ -12,14 +13,14 @@ namespace PlayerScripts.Input.Movement
 
     public class PlayerLooking : MonoBehaviour
     {
-        private PlayerInputActions playerInputActions;
+        private PlayerInputActions _playerInputActions;
 
         [SerializeField] 
         private Transform orientation;
 
-        private Transform rotationTarget;
+        private Transform _rotationTarget;
     
-        private Vector2 mouseDelta;
+        private Vector2 _mouseDelta;
 
         public float sensX = 100f;
         public float sensY = 100f;
@@ -29,39 +30,39 @@ namespace PlayerScripts.Input.Movement
         [SerializeField]
         private float maxRotationClamp = 89f;
     
-        private float xRotation;
-        private float yRotation;
+        private float _xRotation;
+        private float _yRotation;
 
-        private bool freeCursor = false;
+        private bool _freeCursor = false;
 
-        private CameraState cameraState;
+        private CameraState _cameraState;
 
         [SerializeField] private HealthHandler playerHealthHandler;
         [SerializeField] private Camera weaponCamera;
         [SerializeField] private Camera mainCamera;
         [SerializeField]
         private Transform cameraPosition;
-        private Transform playerCameraPosition;
-        private GameObject player;
+        private Transform _playerCameraPosition;
+        private GameObject _player;
         
 
         private void Start()
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
-            cameraState = CameraState.UndetectedFirstPerson;
-            playerInputActions = new PlayerInputActions();
-            playerInputActions.Player.Enable();
-            playerInputActions.Player.Look.performed += ctx => mouseDelta = ctx.ReadValue<Vector2>();
-            playerInputActions.Player.Look.canceled += ctx => mouseDelta = Vector2.zero;
+            _cameraState = CameraState.UndetectedFirstPerson;
+            _playerInputActions = new PlayerInputActions();
+            _playerInputActions.Player.Enable();
+            _playerInputActions.Player.Look.performed += ctx => _mouseDelta = ctx.ReadValue<Vector2>();
+            _playerInputActions.Player.Look.canceled += ctx => _mouseDelta = Vector2.zero;
             
             playerHealthHandler.healthScriptableObject.Death += OnDeath;
-            rotationTarget = transform;
-            playerCameraPosition = cameraPosition;
-            player = Player.Instance.gameObject;
+            _rotationTarget = transform;
+            _playerCameraPosition = cameraPosition;
+            _player = Player.Instance.gameObject;
             mainCamera.fieldOfView = 90;
             weaponCamera.fieldOfView = 90;
-            freeCursor = false;
+            _freeCursor = false;
         }
 
 
@@ -70,15 +71,15 @@ namespace PlayerScripts.Input.Movement
         private void Update()
         {
             transform.position = cameraPosition.position;
-            if (freeCursor) return;
+            if (_freeCursor) return;
             
-            if (cameraState != CameraState.UndetectedFirstPerson)
+            if (_cameraState != CameraState.UndetectedFirstPerson)
             {
-                transform.LookAt(rotationTarget);
+                transform.LookAt(_rotationTarget);
                     
             }
 
-            if (cameraState == CameraState.DetectedFirstPerson)
+            if (_cameraState == CameraState.DetectedFirstPerson)
             {
                 orientation.rotation = Quaternion.Euler(0, transform.rotation.y,0);
             }
@@ -94,54 +95,65 @@ namespace PlayerScripts.Input.Movement
 
         private void MoveCamera()
         {
-            var mouseX = mouseDelta.x * Time.deltaTime * sensX;
-            var mouseY = mouseDelta.y * Time.deltaTime * sensY;
+            var mouseX = _mouseDelta.x * Time.deltaTime * sensX;
+            var mouseY = _mouseDelta.y * Time.deltaTime * sensY;
 
-            yRotation += mouseX;
-            xRotation -= mouseY;
+            _yRotation += mouseX;
+            _xRotation -= mouseY;
 
-            xRotation = Mathf.Clamp(xRotation, minRotationClamp, maxRotationClamp);
+            _xRotation = Mathf.Clamp(_xRotation, minRotationClamp, maxRotationClamp);
         
-            rotationTarget.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+            _rotationTarget.rotation = Quaternion.Euler(_xRotation, _yRotation, 0);
         
-            orientation.rotation = Quaternion.Euler(0, yRotation, 0);
+            orientation.rotation = Quaternion.Euler(0, _yRotation, 0);
        
         }
 
+        private bool running;
 
         public void EnterDetectedFirstPersonMode(Transform rotTarget)
         {
-            cameraState = CameraState.DetectedFirstPerson;
-            rotationTarget = rotTarget;
-            LerpCameraFov(60f);
+            _cameraState = CameraState.DetectedFirstPerson;
+            _rotationTarget = rotTarget;
+            if(running) return;
+            running = true;
+            StartCoroutine(LerpCameraFov(60f));
         }
         public void EnterUndetectedFirstPersonMode()
         {
-            cameraState = CameraState.UndetectedFirstPerson;
-            rotationTarget = transform;
-            cameraPosition = playerCameraPosition;
+            _cameraState = CameraState.UndetectedFirstPerson;
+            _rotationTarget = transform;
+            cameraPosition = _playerCameraPosition;
            
             minRotationClamp = -90f;
             maxRotationClamp = 90f;
             weaponCamera.enabled = true;
-            LerpCameraFov(90f);
+            
+            StartCoroutine(LerpCameraFov(90f));
         }
     
         public void EnterHiddenInObjectMode(Transform rotTarget, Transform camPosition)
         {
-            rotationTarget = rotTarget;
+            _rotationTarget = rotTarget;
             cameraPosition = camPosition;
-            cameraState = CameraState.HiddenInObject;
+            _cameraState = CameraState.HiddenInObject;
           
             minRotationClamp = 0;
             maxRotationClamp = 89f;
             weaponCamera.enabled = false;
         }
 
-        private void LerpCameraFov(float toFov)
+        private IEnumerator LerpCameraFov(float toFov)
         {
-            mainCamera.fieldOfView = Mathf.Lerp(mainCamera.fieldOfView, toFov, Time.deltaTime * 2);
-            weaponCamera.fieldOfView = Mathf.Lerp(weaponCamera.fieldOfView, toFov, Time.deltaTime * 2);
+            while (!Mathf.Approximately(mainCamera.fieldOfView, toFov))
+            {
+                mainCamera.fieldOfView = Mathf.Lerp(mainCamera.fieldOfView, toFov, Time.deltaTime * 2);
+                weaponCamera.fieldOfView = Mathf.Lerp(weaponCamera.fieldOfView, toFov, Time.deltaTime * 2);
+                
+                yield return null;
+            }
+
+            running = false;
         }
         
     
@@ -150,7 +162,7 @@ namespace PlayerScripts.Input.Movement
             Cursor.lockState = CursorLockMode.Confined;
             weaponCamera.enabled = false;
             Cursor.visible = true;
-            freeCursor = true;
+            _freeCursor = true;
         }
     }
 }
